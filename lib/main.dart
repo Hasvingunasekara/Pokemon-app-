@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:pokemon_app/pokemon.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -18,6 +21,8 @@ class _HomepageState extends State<Homepage> {
 
   var url = "https://raw.githubusercontent.com/Biuni/PokemonGo-Pokedex/master/pokedex.json";
 
+  PokeHub pokeHub;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -27,7 +32,10 @@ class _HomepageState extends State<Homepage> {
   }
 
   fetchData() async{
+    var res = await http.get(url);
+    var decodedJson = jsonDecode(res.body);
 
+    pokeHub = PokeHub.fromJson(decodedJson);
   }
 
   @override
@@ -37,9 +45,21 @@ class _HomepageState extends State<Homepage> {
         title: Text("Poke App"),
         backgroundColor: Colors.cyan,
       ),
-      body: Center(
-        child: Text("Hello from Pokemon App"),
-      ),
+      body: GridView.count(crossAxisCount: 2, children: pokeHub.pokemon.map((poke) => Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Card(
+          child:Column(
+            children: <Widget>[
+              Container(
+                height: 100.0,
+                width: 100.0,
+                decoration: BoxDecoration(
+                  image: DecorationImage(image: NetworkImage(poke.img))
+                ),
+              )
+            ],
+          ) ,),
+      )).toList(),),
       drawer: Drawer(),
       floatingActionButton: FloatingActionButton(onPressed: (){},child: Icon(Icons.refresh),backgroundColor: Colors.cyan,),
     );
